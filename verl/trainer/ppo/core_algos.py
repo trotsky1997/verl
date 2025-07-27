@@ -901,7 +901,9 @@ def compute_policy_loss_gpg(old_log_prob, log_prob, advantages, response_mask, l
         pg_loss: `a scalar torch.Tensor`
             policy gradient loss computed via GPG
     """
-    pg_losses = -log_prob * advantages
+    # pg_losses = -log_prob * advantages
+    pg_losses = torch.relu(1-(2*advantages - 1 ) * (log_prob - old_log_prob)) #hard margin
+    # pg_losses = - torch.logsigmoid((2*advantages - 1 ) * (log_prob - old_log_prob)) #soft margin
 
     pg_loss = agg_loss(loss_mat=pg_losses, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
     return pg_loss, torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)
